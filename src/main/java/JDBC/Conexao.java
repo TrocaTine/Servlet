@@ -1,6 +1,8 @@
 package JDBC;
 import java.sql.Connection;
-import java.sql.DriverManager;
+import  java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class Conexao {
@@ -8,12 +10,12 @@ public class Conexao {
 
     public boolean conectar() {
         try {
-            // Informing which driver to use
-            Class.forName("///////////////");
+            // Informando qual driver de conexão será utilizado pelo DriverManager
+            Class.forName("org.postgresql.Driver");
 
-            // Creating the connection with the database
+            // Criando a conexão com o BD
             conn = DriverManager.getConnection(
-                    "jdbc://///////////", "//////////", "////////////"
+                    "jdbc:postgresql://localhost:5432/dbTrocatine", "postgres", "123456"
             );
             return true;
         } catch (SQLException sqle) {
@@ -26,20 +28,17 @@ public class Conexao {
     }
 
     public void desconectar() {
-        // Disconnecting from the database
-        if (conn != null) {
-            try {
-                if (!conn.isClosed()) {
-                    conn.close();
-                }
-            } catch (SQLException sqle) {
-                sqle.printStackTrace();
+        // Desconectando do BD
+        try {
+            if (conn != null && !conn.isClosed()) {
+                conn.close();
             }
+        } catch (SQLException sqle) {
+            sqle.printStackTrace();
         }
     }
 
     public Connection getConnection() {
         return conn;
     }
-
 }
