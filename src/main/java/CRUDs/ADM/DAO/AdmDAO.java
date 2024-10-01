@@ -8,4 +8,6 @@ import java.sql.*;
 
 public class AdmDAO {
 
+
+
 }
