@@ -7,8 +7,9 @@ public class MainTeste {
 
     public static void main(String[] args) {
         Conexao conexao = new Conexao();
+        CadastroDAO cadastro = new CadastroDAO();
 
-        if (conexao.conectar()) {
+        if (conexao.getConnection()!=null) {
             System.out.println("Conectado com sucesso");
         } else {
             System.out.println("Erro ao conectar");
@@ -16,29 +17,38 @@ public class MainTeste {
 
         conexao.desconectar();
 
+        // Dados de exemplo
         String cidade = "São Paulo";
-        String estado = "SP";
-        String rua = "av. Bela Vista";
-        String complemento = "apto 101";
-        int cep = 01001000;
+        String rua = "Rua Exemplo";
+        String cep = "12345678";
+        String complemento = "Apto 101";
         int numero = 100;
+        String estado = "SP";
 
-
-
-
-        CadastroDAO cadastro = new CadastroDAO();
+        // Dados do usuário
+        String nome = "Carlos Gonzalez";
+        String telefone = "123456789";
+        String senha = "senha123";
+        int trocadinhas = 50;
+        String email = "carlos@example.com";
+        String cpf = "123.456.789-00";
+        String dtNascimento = "1990-01-01";
+        boolean adm = false;
+        String fotoPerfil = "perfil.jpg";
 
         try {
-            if (cadastro.InserirEndereco(cidade, rua, cep, complemento, numero, estado)){
-                System.out.println("Inserido com sucesso");
-            }else {
-                System.out.println("Erro ao inserir endereco");
+            // Chamar o método de inserção do usuário
+            boolean sucesso = cadastro.InserirUsuario(cidade, rua, cep, complemento, numero, estado, nome, telefone, senha, trocadinhas, email, cpf, dtNascimento, adm, fotoPerfil);
+
+            if (sucesso) {
+                System.out.println("Usuário inserido com sucesso!");
+            } else {
+                System.out.println("Falha ao inserir o usuário.");
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
-
-
+    }
         //try {
             // Replace with actual values for user data
             //String nome = "John Doe";
@@ -63,5 +73,5 @@ public class MainTeste {
         //}
 
 
-    }
+
 }

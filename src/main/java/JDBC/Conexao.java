@@ -8,37 +8,26 @@ import java.sql.SQLException;
 public class Conexao {
     private Connection conn;
 
-    public boolean conectar() {
-        try {
-            // Informando qual driver de conexão será utilizado pelo DriverManager
-            Class.forName("org.postgresql.Driver");
+    public Connection getConnection() {
+        if (conn == null) {
+            try {
+                Class.forName("org.postgresql.Driver");
 
-            // Criando a conexão com o BD
-            conn = DriverManager.getConnection(
-                    "jdbc:postgresql://localhost:5432/dbTrocatine", "postgres", "123456"
-            );
-            return true;
-        } catch (SQLException sqle) {
-            sqle.printStackTrace();
-            return false;
-        } catch (ClassNotFoundException cnfe) {
-            cnfe.printStackTrace();
-            return false;
+                conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/dbTrocatine", "postgres", "123456");
+            } catch (ClassNotFoundException | SQLException e) {
+                e.printStackTrace();
+            }
         }
+        return conn;
     }
 
     public void desconectar() {
-        // Desconectando do BD
-        try {
-            if (conn != null && !conn.isClosed()) {
+        if (conn != null) {
+            try {
                 conn.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
-        } catch (SQLException sqle) {
-            sqle.printStackTrace();
         }
-    }
-
-    public Connection getConnection() {
-        return conn;
     }
 }

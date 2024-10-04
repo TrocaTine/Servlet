@@ -11,70 +11,78 @@ public class CadastroDAO {
 
     Conexao conexao = new Conexao();
 
-    public boolean InserirEndereco(String cidade, String Rua, int Cep, String Complemento, int Numero, String Estado) throws SQLException {
-        String sql = "INSERT INTO endereco (Cidade, Rua, Cep, Complemento, Numero, Estado) VALUES (?, ?, ?, ?, ?, ?)";
-
-        try {
-            conexao.conectar();
-            PreparedStatement pstmt = conexao.getConnection().prepareStatement(sql);
-
-            pstmt.setString(1, cidade);
-            pstmt.setString(2, Rua);
-            pstmt.setInt(3, Cep);
-            pstmt.setString(4, Complemento);
-            pstmt.setInt(5, Numero);
-            pstmt.setString(6, Estado);
-            pstmt.executeUpdate();
-
-            return true;
-        }catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }finally {
-            conexao.desconectar();
-        }
-    }
-
-    public void InserirUsuario(String nome, String telefone, String senha, int trocadinhas, String email, String cpf, String dtNascimento, boolean adm, String fotoPerfil, String endereco) throws SQLException {
-        String sql = "INSERT INTO usuario (nome, telefone, senha, trocadinhas, email, cpf, dt_nascimento, adm, foto_perfil) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    public boolean InserirUsuario(String cidade, String Rua, String Cep, String Complemento, int Numero, String Estado, String nome, String telefone, String senha, int trocadinhas, String email, String cpf, String dtNascimento, boolean adm, String fotoPerfil) throws SQLException {
+        String sql2 = "INSERT INTO usuario (nome, telefone, senha, trocadinhas, email, cpf, dt_nascimento, adm, foto_perfil, idendereco) VALUES (?,?,?,?,?,?,?,?,?,?)";
 
         Conexao conexao = new Conexao();
 
         try {
-            conexao.conectar();
-            PreparedStatement stmt = conexao.getConnection().prepareStatement(sql);
 
-            SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
-            java.util.Date parsedDate = sdf.parse(dtNascimento);
-            java.sql.Date sqlDate = new java.sql.Date(parsedDate.getTime());
+            int idendereco = InserirEnderecoRetornaId(cidade, Rua, Cep, Complemento, Numero, Estado, conexao);
 
-            stmt.setString(1, nome);
-            stmt.setString(2, telefone);
-            stmt.setString(3, senha);
-            stmt.setInt(4, trocadinhas);
-            stmt.setString(5, email);
-            stmt.setString(6, cpf);
-            stmt.setDate(7, sqlDate);
-            stmt.setBoolean(8, adm);
-            stmt.setString(9, fotoPerfil);
+            if (idendereco > 0) {
 
-            // Executa a inserção no banco
-            stmt.executeUpdate();
-        } catch (SQLException | ParseException e) {
-            throw new SQLException(e);
-        } finally {
-            if (conexao.getConnection() != null) {
-                conexao.desconectar();
+                try (PreparedStatement stmt2 = conexao.getConnection().prepareStatement(sql2)) {
+                    stmt2.setString(1, nome);
+                    stmt2.setString(2, telefone);
+                    stmt2.setString(3, senha);
+                    stmt2.setInt(4, trocadinhas);
+                    stmt2.setString(5, email);
+                    stmt2.setString(6, cpf);
+                    Date dataNascimento = Date.valueOf(dtNascimento);
+                    stmt2.setDate(7, dataNascimento);
+                    stmt2.setBoolean(8, adm);
+                    stmt2.setString(9, fotoPerfil);
+                    stmt2.setInt(10, idendereco);
+
+                    stmt2.executeUpdate();
+                }
+                return true;
+            } else {
+                return false;
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            conexao.desconectar();
         }
     }
+
+    public int InserirEnderecoRetornaId(String cidade, String Rua, String Cep, String Complemento, int Numero, String Estado, Conexao conexao) throws SQLException {
+        String sql = "INSERT INTO endereco (Cidade, Rua, Cep, Complemento, Numero, Estado) VALUES (?,?,?,?,?,?)";
+
+        try {
+
+            PreparedStatement stmt = conexao.getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            stmt.setString(1, cidade);
+            stmt.setString(2, Rua);
+            stmt.setString(3, Cep);
+            stmt.setString(4, Complemento);
+            stmt.setInt(5, Numero);
+            stmt.setString(6, Estado);
+
+            stmt.executeUpdate();
+
+
+            ResultSet rs = stmt.getGeneratedKeys();
+            if (rs.next()) {
+                return rs.getInt(2);
+            }
+            return -1;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return -1;
+        }
+    }
+
 
     public void excluirUsuarioPorID(int id) throws SQLException {
         String sql = "DELETE FROM usuario WHERE id = ?";
         Conexao conexao = new Conexao();
 
         try {
-            conexao.conectar();
+            conexao.getConnection();
             PreparedStatement stmt = conexao.getConnection().prepareStatement(sql);
             stmt.setInt(1, id);
             stmt.executeUpdate();
@@ -86,13 +94,43 @@ public class CadastroDAO {
             }
         }
     }
+    public void mostrarTodosUsuarios() throws SQLException {
+        String sql = "SELECT * FROM usuario";
+        Conexao conexao = new Conexao();
 
+        try {
+            conexao.getConnection();
+            PreparedStatement stmt = conexao.getConnection().prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                    String nome = rs.getString("nome");
+                    String telefone = rs.getString("telefone");
+                    String senha = rs.getString("senha");
+                    int trocadinhas = rs.getInt("trocadinhas");
+                    String email = rs.getString("email");
+                    String cpf = rs.getString("cpf");
+                    String dtNascimento = rs.getString("dt_nascimento");
+                    boolean adm = rs.getBoolean("adm");
+                    String fotoPerfil = rs.getString("foto_perfil");
+                    System.out.println("ID: " + id + " Nome: " + nome + " Telefone: " + telefone + " Senha: " + senha + " Trocadinhas: " + trocadinhas + " Email: " + email + " CPF: " + cpf + " Data de Nascimento: " + dtNascimento + " Administrador: " + adm + " Foto do Perfil: " + fotoPerfil);
+            }
+
+        }   catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            if (conexao.getConnection() != null) {
+                conexao.desconectar();
+            }
+            }
+
+    }
     public void buscarUsuarioPorID(int id) throws SQLException {
         String sql = "SELECT * FROM usuario WHERE id = ?";
         Conexao conexao = new Conexao();
 
         try {
-            conexao.conectar();
+            conexao.getConnection();
             PreparedStatement stmt = conexao.getConnection().prepareStatement(sql);
             stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
@@ -124,7 +162,7 @@ public class CadastroDAO {
         Conexao conexao = new Conexao();
 
         try {
-            conexao.conectar();
+            conexao.getConnection();
             PreparedStatement stmt = conexao.getConnection().prepareStatement(sql);
             stmt.setString(1, email);
             ResultSet rs = stmt.executeQuery();
@@ -155,7 +193,7 @@ public class CadastroDAO {
         String sql = "SELECT * FROM usuario WHERE cpf = ?";
         Conexao conexao = new Conexao();
         try {
-            conexao.conectar();
+            conexao.getConnection();
             PreparedStatement stmt = conexao.getConnection().prepareStatement(sql);
             stmt.setString(1, cpf);
             ResultSet rs = stmt.executeQuery();
