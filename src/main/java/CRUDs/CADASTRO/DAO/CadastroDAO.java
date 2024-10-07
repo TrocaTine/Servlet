@@ -19,7 +19,7 @@ public class CadastroDAO {
         try {
 
             int idendereco = InserirEnderecoRetornaId(cidade, Rua, Cep, Complemento, Numero, Estado, conexao);
-
+            boolean
             if (idendereco > 0) {
 
                 try (PreparedStatement stmt2 = conexao.getConnection().prepareStatement(sql2)) {
@@ -47,6 +47,50 @@ public class CadastroDAO {
         } finally {
             conexao.desconectar();
         }
+    }
+
+    public int InserirUsuarioRetornaID(String cidade, String Rua, String Cep, String Complemento, int Numero, String Estado, String nome, String telefone, String senha, int trocadinhas, String email, String cpf, String dtNascimento, boolean adm, String fotoPerfil){
+        String sql = "INSERT INTO usuario (nome, telefone, senha, trocadinhas, email, cpf, dt_nascimento, adm, foto_perfil, idendereco) VALUES (?,?,?,?,?,?,?,?,?,?)";
+        Conexao conexao = new Conexao();
+        int generatedId = -1;
+
+        try {
+            int idendereco = InserirEnderecoRetornaId(cidade, Rua, Cep, Complemento, Numero, Estado, conexao);
+
+            boolean adm2 = true;
+
+            if (idendereco > 0) {
+                try (PreparedStatement stmt2 = conexao.getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+                    stmt2.setString(1, nome);
+                    stmt2.setString(2, telefone);
+                    stmt2.setString(3, senha);
+                    stmt2.setInt(4, trocadinhas);
+                    stmt2.setString(5, email);
+                    stmt2.setString(6, cpf);
+                    Date dataNascimento = Date.valueOf(dtNascimento);
+                    stmt2.setDate(7, dataNascimento);
+                    stmt2.setBoolean(8, adm2);
+                    stmt2.setString(9, fotoPerfil);
+                    stmt2.setInt(10, idendereco);
+
+                    int affectedRows = stmt2.executeUpdate();
+
+                    if (affectedRows > 0) {
+                        try (ResultSet generatedKeys = stmt2.getGeneratedKeys()) {
+                            if (generatedKeys.next()) {
+                                generatedId = generatedKeys.getInt(5);
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            conexao.desconectar();
+        }
+
+        return generatedId;
     }
 
     public int InserirEnderecoRetornaId(String cidade, String Rua, String Cep, String Complemento, int Numero, String Estado, Conexao conexao) throws SQLException {
