@@ -11,9 +11,14 @@ public class Conexao {
     public Connection getConnection() {
         if (conn == null) {
             try {
-                Class.forName("org.postgresql.Driver");
+                String driver = System.getenv("DRIVER");
+                Class.forName(driver);
 
-                conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/dbTrocatine", "postgres", "123456");
+                String url = System.getenv("DB_URL");
+                String user = System.getenv("DB_USER");
+                String password = System.getenv("DB_PASSWORD");
+
+                conn = DriverManager.getConnection(url, user, password);
             } catch (ClassNotFoundException | SQLException e) {
                 e.printStackTrace();
             }
