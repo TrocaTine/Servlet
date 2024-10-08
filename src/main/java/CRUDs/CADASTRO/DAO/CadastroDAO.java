@@ -11,7 +11,7 @@ public class CadastroDAO {
 
     Conexao conexao = new Conexao();
 
-    public boolean InserirUsuario(String cidade, String Rua, String Cep, String Complemento, int Numero, String Estado, String nome, String telefone, String senha, int trocadinhas, String email, String cpf, String dtNascimento, boolean adm, String fotoPerfil) throws SQLException {
+    public boolean InserirUsuario(String cidade, String Rua, String Cep, String Complemento, int Numero, String Estado, String nome, String telefone, String senha, int trocadinhas, String email, String cpf, String dtNascimento, int adm, String fotoPerfil) throws SQLException {
         String sql2 = "INSERT INTO usuario (nome, telefone, senha, trocadinhas, email, cpf, dt_nascimento, adm, foto_perfil, idendereco) VALUES (?,?,?,?,?,?,?,?,?,?)";
 
         Conexao conexao = new Conexao();
@@ -19,7 +19,7 @@ public class CadastroDAO {
         try {
 
             int idendereco = InserirEnderecoRetornaId(cidade, Rua, Cep, Complemento, Numero, Estado, conexao);
-            boolean
+
             if (idendereco > 0) {
 
                 try (PreparedStatement stmt2 = conexao.getConnection().prepareStatement(sql2)) {
@@ -31,7 +31,7 @@ public class CadastroDAO {
                     stmt2.setString(6, cpf);
                     Date dataNascimento = Date.valueOf(dtNascimento);
                     stmt2.setDate(7, dataNascimento);
-                    stmt2.setBoolean(8, adm);
+                    stmt2.setInt(8, adm);
                     stmt2.setString(9, fotoPerfil);
                     stmt2.setInt(10, idendereco);
 
@@ -49,7 +49,7 @@ public class CadastroDAO {
         }
     }
 
-    public int InserirUsuarioRetornaID(String cidade, String Rua, String Cep, String Complemento, int Numero, String Estado, String nome, String telefone, String senha, int trocadinhas, String email, String cpf, String dtNascimento, boolean adm, String fotoPerfil){
+    public int InserirUsuarioRetornaID(String cidade, String Rua, String Cep, String Complemento, int Numero, String Estado, String nome, String telefone, String senha, int trocadinhas, String email, String cpf, String dtNascimento, int adm, String fotoPerfil){
         String sql = "INSERT INTO usuario (nome, telefone, senha, trocadinhas, email, cpf, dt_nascimento, adm, foto_perfil, idendereco) VALUES (?,?,?,?,?,?,?,?,?,?)";
         Conexao conexao = new Conexao();
         int generatedId = -1;
@@ -57,7 +57,6 @@ public class CadastroDAO {
         try {
             int idendereco = InserirEnderecoRetornaId(cidade, Rua, Cep, Complemento, Numero, Estado, conexao);
 
-            boolean adm2 = true;
 
             if (idendereco > 0) {
                 try (PreparedStatement stmt2 = conexao.getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -69,7 +68,7 @@ public class CadastroDAO {
                     stmt2.setString(6, cpf);
                     Date dataNascimento = Date.valueOf(dtNascimento);
                     stmt2.setDate(7, dataNascimento);
-                    stmt2.setBoolean(8, adm2);
+                    stmt2.setInt(8, adm);
                     stmt2.setString(9, fotoPerfil);
                     stmt2.setInt(10, idendereco);
 

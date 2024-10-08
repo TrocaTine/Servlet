@@ -33,7 +33,7 @@ public class MainTeste {
         String email = "carlos@example.com";
         String cpf = "123.456.789-00";
         String dtNascimento = "1990-01-01";
-        boolean adm = false;
+        int adm = 4;
         String fotoPerfil = "perfil.jpg";
 
         try {
